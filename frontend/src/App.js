@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   LineElement,
@@ -57,10 +57,10 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark">T</div>
+        <div className="brand-mark">ML</div>
         <div>
           <div className="brand-title">Turret Tuner</div>
-          <div className="brand-subtitle">FTC PID Dashboard</div>
+          <div className="brand-subtitle">FTC ML PID Dashboard</div>
         </div>
       </div>
 
@@ -72,34 +72,75 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-note">
-        <div className="sidebar-note-label">Tip</div>
+        <div className="sidebar-note-label">Model Insight</div>
         <div className="sidebar-note-text">
-          Use repeatable step-response tests. Consistent data gives better tuning suggestions.
+          Better logs create better features. Better features create better ML suggestions.
         </div>
       </div>
     </aside>
   );
 }
 
-function MetricCard({ label, value, accent = "yellow" }) {
+function MetricCard({ label, value, accent = "yellow", delay = 0 }) {
   return (
-    <div className={`metric-card metric-${accent}`}>
+    <div
+      className={`metric-card metric-${accent} reveal-up-slow`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <div className="metric-label">{label}</div>
       <div className="metric-value">{value}</div>
     </div>
   );
 }
 
+function IntroScreen({ onEnter }) {
+  return (
+    <section className="intro-screen">
+      <div className="intro-video-layer">
+        <div className="robot-scene">
+          <div className="track-line track-line-1" />
+          <div className="track-line track-line-2" />
+          <div className="track-line track-line-3" />
+          <div className="robot-silhouette">
+            <div className="robot-base" />
+            <div className="robot-turret" />
+            <div className="robot-arm" />
+            <div className="robot-glow" />
+          </div>
+        </div>
+      </div>
+
+      <div className="intro-overlay" />
+
+      <div className="intro-content">
+        <div className="intro-eyebrow">FTC MACHINE LEARNING</div>
+        <h1 className="intro-title">Precision tuning for a smarter turret.</h1>
+        <p className="intro-subtitle">
+          Analyze telemetry, extract step-response features, and generate PID recommendations
+          through a local ML-driven dashboard.
+        </p>
+        <button className="intro-btn" onClick={onEnter}>
+          Get Started
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
+  const [hasEntered, setHasEntered] = useState(false);
   const [telemetryText, setTelemetryText] = useState("");
   const [file, setFile] = useState(null);
   const [currentP, setCurrentP] = useState("0.01");
   const [currentI, setCurrentI] = useState("0.0001");
   const [currentD, setCurrentD] = useState("0.001");
   const [result, setResult] = useState(null);
+  const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const resultsRef = useRef(null);
 
   const handleCopySnippet = async () => {
     try {
@@ -116,12 +157,21 @@ export default function App() {
     setFile(null);
     setError("");
     setResult(null);
+    setShowResults(false);
+  };
+
+  const revealResults = () => {
+    setShowResults(true);
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
   };
 
   const handleAnalyze = async (e) => {
     e.preventDefault();
     setError("");
     setResult(null);
+    setShowResults(false);
     setIsLoading(true);
 
     const formData = new FormData();
@@ -168,28 +218,28 @@ export default function App() {
           label: "Target",
           data: result.chartData.target ?? [],
           borderColor: "#f5c400",
-          backgroundColor: "rgba(245, 196, 0, 0.15)",
-          borderWidth: 2,
+          backgroundColor: "rgba(245, 196, 0, 0.10)",
+          borderWidth: 3,
           pointRadius: 0,
-          tension: 0.25,
+          tension: 0.28,
         },
         {
           label: "Position",
           data: result.chartData.position ?? [],
-          borderColor: "#ffffff",
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          borderColor: "#f4f4f5",
+          backgroundColor: "rgba(255,255,255,0.06)",
           borderWidth: 2,
           pointRadius: 0,
-          tension: 0.25,
+          tension: 0.28,
         },
         {
           label: "Error",
           data: result.chartData.error ?? [],
-          borderColor: "#ff8a00",
-          backgroundColor: "rgba(255, 138, 0, 0.12)",
+          borderColor: "#ff9500",
+          backgroundColor: "rgba(255,149,0,0.10)",
           borderWidth: 2,
           pointRadius: 0,
-          tension: 0.25,
+          tension: 0.28,
         },
       ],
     };
@@ -199,6 +249,10 @@ export default function App() {
     return {
       responsive: true,
       maintainAspectRatio: false,
+      animation: {
+        duration: 4200,
+        easing: "easeOutQuart",
+      },
       plugins: {
         legend: {
           labels: {
@@ -207,7 +261,7 @@ export default function App() {
         },
         title: {
           display: true,
-          text: "Turret Response",
+          text: "ML Telemetry Visualization",
           color: "#f3f3f5",
         },
       },
@@ -234,19 +288,33 @@ export default function App() {
     };
   }, []);
 
+  if (!hasEntered) {
+    return <IntroScreen onEnter={() => setHasEntered(true)} />;
+  }
+
   return (
-    <div className="app-shell">
+    <div className="app-shell fade-app-in">
+      <div className="bg-orb bg-orb-1" />
+      <div className="bg-orb bg-orb-2" />
+      <div className="bg-grid" />
+
       <Sidebar />
 
       <main className="main-content">
         <section className="hero-card" id="setup">
           <div className="hero-copy">
-            <div className="eyebrow">LOCALHOST TESTING</div>
-            <h1>FTC ML-Based Turret PID Tuner</h1>
+            <div className="eyebrow">LOCALHOST MACHINE LEARNING</div>
+            <h1>FTC Turret ML-Based PID Tuner</h1>
             <p>
-              Standardize your test, log turret telemetry, paste it here, and get
-              suggested PID adjustments with visual feedback.
+              Convert turret telemetry into step-response features, visualize the run,
+              and generate rule-based or ML-driven PID recommendations.
             </p>
+
+            <div className="hero-badges">
+              <span className="hero-badge">Feature Extraction</span>
+              <span className="hero-badge">Step Segmentation</span>
+              <span className="hero-badge">PID Suggestions</span>
+            </div>
 
             <div className="hero-actions">
               <button className="primary-btn" onClick={handleLoadSample}>
@@ -255,18 +323,33 @@ export default function App() {
               <a className="secondary-btn" href="#logging">
                 View Logging Snippet
               </a>
+              {result && !showResults && (
+                <button className="accent-btn" onClick={revealResults}>
+                  View Your Results
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="hero-panel">
-            <div className="hero-panel-title">Recommended first-run process</div>
+          <div className="hero-panel ml-panel">
+            <div className="hero-panel-title">ML pipeline</div>
+            <div className="pipeline">
+              <div className="pipeline-node">Logs</div>
+              <div className="pipeline-line" />
+              <div className="pipeline-node">Steps</div>
+              <div className="pipeline-line" />
+              <div className="pipeline-node">Features</div>
+              <div className="pipeline-line" />
+              <div className="pipeline-node">Prediction</div>
+            </div>
+
             <ol className="hero-steps">
               <li>Place the robot in a repeatable test position.</li>
               <li>Start the turret at a known angle each run.</li>
               <li>Add the logging snippet to your TeleOp loop.</li>
               <li>Run 3 to 5 turret step moves.</li>
               <li>Copy Logcat output filtered to your PID tag.</li>
-              <li>Paste logs and analyze them here.</li>
+              <li>Analyze and then click to reveal results.</li>
             </ol>
           </div>
         </section>
@@ -284,7 +367,7 @@ export default function App() {
             </div>
 
             <p className="muted-text">
-              Put this inside your turret control loop after computing error and motor power.
+              Insert this into your turret control loop after computing error and power.
             </p>
 
             <pre className="code-block">{LOGGING_SNIPPET}</pre>
@@ -292,15 +375,15 @@ export default function App() {
             <div className="instruction-list">
               <div className="instruction-item">
                 <span className="instruction-index">01</span>
-                <span>Add the snippet into your TeleOp loop.</span>
+                <span>Add the snippet to your TeleOp loop.</span>
               </div>
               <div className="instruction-item">
                 <span className="instruction-index">02</span>
-                <span>Run the op mode and open Logcat in Android Studio.</span>
+                <span>Run the op mode and open Android Studio Logcat.</span>
               </div>
               <div className="instruction-item">
                 <span className="instruction-index">03</span>
-                <span>Filter by your log tag, then copy the output.</span>
+                <span>Filter by your log tag and copy the output.</span>
               </div>
             </div>
           </div>
@@ -320,26 +403,26 @@ export default function App() {
               </div>
               <div className="check-card">
                 <div className="check-title">Stable robot</div>
-                <div className="check-text">Keep drivetrain still during turret tuning.</div>
+                <div className="check-text">Keep drivetrain still during tuning.</div>
               </div>
               <div className="check-card">
                 <div className="check-title">Known target steps</div>
-                <div className="check-text">Run fixed targets like 0 → 90 → 0.</div>
+                <div className="check-text">Use moves like 0 → 90 → 0.</div>
               </div>
               <div className="check-card">
                 <div className="check-title">Consistent load</div>
-                <div className="check-text">Keep payload state the same each test.</div>
+                <div className="check-text">Keep payload state the same each run.</div>
               </div>
             </div>
 
             <div className="warning-strip">
-              Use AprilTag distance/angle instructions only if your turret test truly depends on vision alignment.
+              High-quality data improves feature extraction and helps the ML pipeline make better recommendations.
             </div>
           </div>
         </section>
 
         <section className="grid-two" id="analyze">
-          <form className="card" onSubmit={handleAnalyze}>
+          <form className="card analyze-card" onSubmit={handleAnalyze}>
             <div className="section-header">
               <div>
                 <div className="section-eyebrow">STEP 3</div>
@@ -387,19 +470,30 @@ export default function App() {
               </button>
               <button
                 type="submit"
-                className="primary-btn button-full"
+                className={`primary-btn button-full ${isLoading ? "is-loading" : ""}`}
                 disabled={isLoading}
               >
-                {isLoading ? "Analyzing..." : "Analyze Run"}
+                {isLoading ? "Running ML Analysis..." : "Analyze Run"}
               </button>
             </div>
+
+            {result && !showResults && (
+              <div className="results-cta-box reveal-up-slow">
+                <div className="results-cta-text">
+                  Analysis complete. Click below to reveal your model output.
+                </div>
+                <button type="button" className="accent-btn results-cta-btn" onClick={revealResults}>
+                  View Your Results
+                </button>
+              </div>
+            )}
           </form>
 
           <div className="card">
             <div className="section-header">
               <div>
                 <div className="section-eyebrow">STEP 4</div>
-                <h2>What good data looks like</h2>
+                <h2>What good ML input looks like</h2>
               </div>
             </div>
 
@@ -418,47 +512,60 @@ export default function App() {
               </div>
               <div className="instruction-item">
                 <span className="instruction-index">D</span>
-                <span>Motor power is not clipped at one value the whole time.</span>
+                <span>Power does not stay clipped the whole time.</span>
               </div>
             </div>
 
             <div className="mini-note">
-              If the turret moves away from the target, fix sign direction before trusting PID suggestions.
+              If the turret moves away from the target, fix sign direction before trusting the model.
             </div>
           </div>
         </section>
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="error-banner reveal-up-slow">{error}</div>}
 
-        {result && (
+        {result && showResults && (
           <>
-            <section className="metrics-grid" id="results">
-              <MetricCard label="Rows Parsed" value={result?.parsedRows ?? "-"} />
-              <MetricCard label="Avg Overshoot %" value={result?.summary?.avg_overshoot_pct ?? "-"} />
+            <section className="results-anchor" id="results" ref={resultsRef}>
+              <div className="results-header reveal-up-slow">
+                <div>
+                  <div className="section-eyebrow">MODEL OUTPUT</div>
+                  <h2>Your Results</h2>
+                </div>
+              </div>
+            </section>
+
+            <section className="metrics-grid">
+              <MetricCard label="Rows Parsed" value={result?.parsedRows ?? "-"} delay={0} />
+              <MetricCard label="Avg Overshoot %" value={result?.summary?.avg_overshoot_pct ?? "-"} delay={180} />
               <MetricCard
                 label="Avg Steady-State Error"
                 value={result?.summary?.avg_steady_state_error ?? "-"}
                 accent="white"
+                delay={360}
               />
               <MetricCard
                 label="Avg Oscillation"
                 value={result?.summary?.avg_oscillation_score ?? "-"}
                 accent="orange"
+                delay={540}
               />
               <MetricCard
                 label="Avg MAE"
                 value={result?.summary?.avg_mae ?? "-"}
                 accent="white"
+                delay={720}
               />
               <MetricCard
                 label="All Improving"
                 value={String(result?.summary?.all_improving ?? "-")}
                 accent={result?.summary?.all_improving ? "green" : "red"}
+                delay={900}
               />
             </section>
 
             {result?.qualityWarnings?.length > 0 && (
-              <div className="card">
+              <div className="card reveal-up-slow" style={{ animationDelay: "1100ms" }}>
                 <div className="section-header">
                   <div>
                     <div className="section-eyebrow">RUN QUALITY</div>
@@ -478,21 +585,27 @@ export default function App() {
             )}
 
             <section className="grid-two-large">
-              <div className="card chart-card">
+              <div className="card chart-card reveal-up-slow" style={{ animationDelay: "1300ms" }}>
                 <div className="section-header">
                   <div>
                     <div className="section-eyebrow">VISUALIZATION</div>
-                    <h2>Turret performance graph</h2>
+                    <h2>Telemetry flow graph</h2>
                   </div>
                 </div>
 
                 <div className="chart-wrap">
-                  {chartData && <Line data={chartData} options={chartOptions} />}
+                  {chartData && (
+                    <Line
+                      key={showResults ? "results-visible" : "results-hidden"}
+                      data={chartData}
+                      options={chartOptions}
+                    />
+                  )}
                 </div>
               </div>
 
               <div className="stack-column">
-                <div className="card">
+                <div className="card reveal-up-slow" style={{ animationDelay: "1500ms" }}>
                   <div className="section-header">
                     <div>
                       <div className="section-eyebrow">RECOMMENDATION</div>
@@ -505,15 +618,15 @@ export default function App() {
                   </div>
 
                   <div className="pid-grid">
-                    <div className="pid-box">
+                    <div className="pid-box glow-box">
                       <div className="pid-label">P</div>
                       <div className="pid-value">{result?.suggestion?.suggested_p ?? "-"}</div>
                     </div>
-                    <div className="pid-box">
+                    <div className="pid-box glow-box">
                       <div className="pid-label">I</div>
                       <div className="pid-value">{result?.suggestion?.suggested_i ?? "-"}</div>
                     </div>
-                    <div className="pid-box">
+                    <div className="pid-box glow-box">
                       <div className="pid-label">D</div>
                       <div className="pid-value">{result?.suggestion?.suggested_d ?? "-"}</div>
                     </div>
@@ -529,7 +642,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="card">
+                <div className="card reveal-up-slow" style={{ animationDelay: "1700ms" }}>
                   <div className="section-header">
                     <div>
                       <div className="section-eyebrow">SUMMARY</div>
@@ -537,13 +650,27 @@ export default function App() {
                     </div>
                   </div>
 
-                  <p><strong>Detected steps:</strong> {result?.summary?.step_count ?? "-"}</p>
-                  <p><strong>Usable steps:</strong> {result?.summary?.usable_step_count ?? "-"}</p>
-                  <p><strong>Average rise time:</strong> {String(result?.summary?.avg_rise_time ?? "-")}</p>
-                  <p><strong>Average settling time:</strong> {String(result?.summary?.avg_settling_time ?? "-")}</p>
+                  <div className="summary-grid">
+                    <div className="summary-item">
+                      <span>Detected steps</span>
+                      <strong>{result?.summary?.step_count ?? "-"}</strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Usable steps</span>
+                      <strong>{result?.summary?.usable_step_count ?? "-"}</strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Average rise time</span>
+                      <strong>{String(result?.summary?.avg_rise_time ?? "-")}</strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Average settling time</span>
+                      <strong>{String(result?.summary?.avg_settling_time ?? "-")}</strong>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="card">
+                <div className="card reveal-up-slow" style={{ animationDelay: "1900ms" }}>
                   <div className="section-header">
                     <div>
                       <div className="section-eyebrow">BACKEND VIEW</div>
