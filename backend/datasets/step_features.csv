@@ -1,0 +1,6 @@
+current_p,current_i,current_d,target_step,move_direction,rise_time,settling_time,overshoot_pct,steady_state_error,oscillation_score,mae,power_sat_ratio,time_to_first_movement,improving,is_step,start_idx,end_idx,target,pre_target,p_multiplier,i_multiplier,d_multiplier,improvement_score
+0.035,0.0,0.001,0.0,0,209.47,,103.5088,12.2434,2,10.1752,0.0,208.76,True,False,0,647,0.0,0.0,,,,
+0.01,0.0001,0.001,0.0,0,209.47,,103.5088,12.2434,2,10.1752,0.0,208.76,True,False,0,647,0.0,0.0,,,,
+0.035,0.0,0.001,0.0,0,209.47,,103.5088,12.2434,2,10.1752,0.0,208.76,True,False,0,647,0.0,0.0,,,,
+0.035,0.0,0.001,0.0,0,209.47,,103.5088,12.2434,2,10.1752,0.0,208.76,True,False,0,647,0.0,0.0,,,,
+0.035,0.0,0.001,0.0,0,209.47,,103.5088,12.2434,2,10.1752,0.0,208.76,True,False,0,647,0.0,0.0,,,,

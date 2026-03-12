@@ -1,0 +1,19 @@
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node / React
+frontend/node_modules/
+frontend/build/
+
+# Environment files
+.env
+frontend/.env
+backend/.env
+
+# ML artifacts
+backend/models/*.pkl
+
+# OS files
+.DS_Store

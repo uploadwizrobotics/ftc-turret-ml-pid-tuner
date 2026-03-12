@@ -1,0 +1,46 @@
+{
+  "summary": {
+    "step_count": 1,
+    "usable_step_count": 0,
+    "avg_overshoot_pct": 103.5088,
+    "avg_steady_state_error": 12.2434,
+    "avg_oscillation_score": 2.0,
+    "avg_mae": 10.1752,
+    "avg_rise_time": 209.47,
+    "avg_settling_time": null,
+    "all_improving": true
+  },
+  "steps": [
+    {
+      "current_p": 0.01,
+      "current_i": 0.0001,
+      "current_d": 0.001,
+      "target_step": 0.0,
+      "move_direction": 0,
+      "rise_time": 209.47,
+      "settling_time": null,
+      "overshoot_pct": 103.5088,
+      "steady_state_error": 12.2434,
+      "oscillation_score": 2,
+      "mae": 10.1752,
+      "power_sat_ratio": 0.0,
+      "time_to_first_movement": 208.76,
+      "improving": true,
+      "is_step": false,
+      "start_idx": 0,
+      "end_idx": 647,
+      "target": 0.0,
+      "pre_target": 0.0
+    }
+  ],
+  "suggestion": {
+    "suggested_p": 0.0092,
+    "suggested_i": 0.00011,
+    "suggested_d": 0.00118,
+    "reasons": [
+      "Average overshoot is high, so P was reduced and D was increased.",
+      "Steady-state error remains, so I was increased slightly."
+    ],
+    "source": "rules"
+  }
+}
